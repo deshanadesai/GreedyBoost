@@ -1,5 +1,7 @@
 import argparse
 from random import seed
+from sklearn.datasets import load_svmlight_file
+warnings.filterwarnings("ignore", module="sklearn")
 
 if __name__ == "__main__":
 	seed(0)
