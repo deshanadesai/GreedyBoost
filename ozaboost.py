@@ -78,6 +78,6 @@ class DecisionTree(object):
         self.model.fit(self.X, self.y)
 
     def predict(self, x):
-return self.model.predict(x.toarray())[0]
+	return self.model.predict(x.toarray())[0]
 		
 		
