@@ -10,11 +10,10 @@ def test(X,y, m, trials=1, should_shuffle=True):
 		if should_shuffle:
 			shuffle(data)
 		results.append(run_test(data,m))
-		results = zip(*results)
 		
 	def avg(x):
 		return sum(x)/len(x)
-	return map(avg, zip(*results[0]))
+	return avg(results)
 	
 def run_test(data, m):
 	classes = np.unique(np.array([y for (x,y) in data]))
