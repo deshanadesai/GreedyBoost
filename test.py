@@ -21,7 +21,7 @@ def run_test(data, m):
     t = 0
     performance_booster = []
     for (features, label) in data:
-        if predictor.predict(features) == label:
+        if predictor.classify(features) == label:
             correct += 1
         predictor.update(features, label)
         t += 1
