@@ -10,7 +10,8 @@ def test(X,y, m, trials=1, should_shuffle=True):
 		if should_shuffle:
 			shuffle(data)
 		results.append(run_test(data,m))
-		
+	
+	print "Results: ",results	
 	def avg(x):
 		return sum(x)/len(x)
 	return avg(results)
