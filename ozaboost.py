@@ -15,6 +15,7 @@ Created on 2017-11-19, 5:00
 """
 
 from math import log
+import math
 import numpy as np
 from numpy.random import poisson, seed
 
@@ -34,9 +35,9 @@ class OzaBoostClassifier():
 	def update(self, X, Y):
 		weight = 1.0
 		for i, learner in enumerate(self.learners):
-			print "Round: ",i
+			#print "Round: ",i
 			k = poisson(weight)
-			print "Poisson Dist: ",k
+			#print "Poisson Dist: ",k
 			if not k:
 				continue
 
@@ -45,19 +46,20 @@ class OzaBoostClassifier():
 			
 			prediction = learner.predict(X)
 			
-			print "Initial Weight: ", weight
+			#print "Initial Weight: ", weight
 
 			if prediction == Y:
 				self.correct[i] = self.correct[i]+weight
 				N = float(self.correct[i]+self.incorrect[i])
-				temp = (N/(2.0*float(self.correct[i])))
+				temp = math.exp(N/(2.0*float(self.correct[i])))
+				
 				weight *= temp
-				print "Weight of example has decreased to: ",weight
+				#print "Weight of example has decreased to: ",weight
 			else:
 				self.incorrect[i] = self.incorrect[i]+weight
 				N = float(self.correct[i]+self.incorrect[i])
-				weight = weight*(N/(2*self.incorrect[i]))
-				print "Weight of example has increased to: ",weight
+				weight = weight*math.exp(N/(2*self.incorrect[i]))
+				#print "Weight of example has increased to: ",weight
 
 	def classify(self,X):	
 		label_weights = {}	
@@ -89,10 +91,10 @@ class DecisionTree(object):
 			self.X = x.reshape(1,-1)
 			self.y = y.reshape(1,-1)
 		else:
-			x = np.array(x.reshape(1, -1))
-			self.X = np.vstack((self.X, x))
-			y = y.reshape(1, -1)
-			self.y = np.vstack((self.y, y))
+			self.X = np.array(x.reshape(1, -1))
+			#self.X = np.vstack((self.X, x))
+			self.y = y.reshape(1, -1)
+			#self.y = np.vstack((self.y, y))
 
 		#print self.X
 		#print self.y

@@ -17,9 +17,10 @@ if __name__ == "__main__":
 	X, y = datasets.make_hastie_10_2(n_samples=12000, random_state=1)
 	data = zip(X, y)
 
-	accuracy = test.test(X,y, args.M, trials=args.trials)
+	model = test.Test(X,y,args.M)
+	accuracy = model.test(X,y,args.M,trials=args.trials)
 
 	print "Accuracy:"
 	print accuracy
 	print "Baseline:"
-	print baseline[-1]
+	#print baseline[-1]
