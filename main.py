@@ -3,7 +3,7 @@ from random import seed
 from sklearn import datasets
 import test
 from sklearn.datasets import load_svmlight_file
-#warnings.filterwarnings("ignore", module="sklearn")
+import numpy as np
 
 if __name__ == "__main__":
 	seed(0)
@@ -14,13 +14,28 @@ if __name__ == "__main__":
 	parser.add_argument('trials', help='number of trials (each with different shuffling of the data); defaults to 1', type=int, default=1, nargs='?')
 	args = parser.parse_args()
 
-	X, y = datasets.make_hastie_10_2(n_samples=12000, random_state=1)
-	data = zip(X, y)
+	data = datasets.load_breast_cancer()
+	X = data.data
+	y = data.target
+	y_clean = []
+	for item in y:
+		if item==1:
+			y_clean.append(item)
+		elif item==0:
+			y_clean.append(-1)
 
+	print y.shape
+	y = np.array(y_clean)
+	print y.shape	
+	from sklearn.model_selection import train_test_split
+	X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 	model = test.Test(X,y,args.M)
-	accuracy = model.test(X,y,args.M,trials=args.trials)
-
-	print "Accuracy:"
-	print accuracy
-	print "Baseline:"
-	#print baseline[-1]
+	train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
+	print "Running for "+str(args.M)+" weak learners.."
+	print "Shape of Train Data: ",X_train.shape,y_train.shape
+	print "Shape of Test Data: ",X_test.shape, y_test.shape
+	test_accuracy = model.final_test(X_test,y_test,args.M)
+	print "Accuracy on Training Set:"
+	print train_accuracy
+	print "Test Accuracy"
+	print test_accuracy

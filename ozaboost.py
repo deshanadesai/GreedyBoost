@@ -13,24 +13,38 @@
 Created on 2017-11-19, 5:00
 
 """
-
+from collections import defaultdict
 from math import log
 import math
 import numpy as np
 from numpy.random import poisson, seed
 
 from sklearn.tree import DecisionTreeClassifier
-
+import naive_bayes_binary
 
 class OzaBoostClassifier():
 	def __init__(self, classes, total_points):
 		self.total_points = total_points
 		self.classes = classes
 		self.learners = [DecisionTree(classes) for i in range(self.total_points)]
+		#self.learners = [naive_bayes_binary.NaiveBayes(classes) for i in range(self.total_points)]
 		self.correct = [0.0 for i in range(self.total_points)]
 		self.incorrect = [0.0 for i in range(self.total_points)]
 		self.error = [0.0 for i in range(self.total_points)]
 		self.coeff = [0.0 for i in range(self.total_points)]
+
+        def get_error_rate(self, predictions, Y):
+                        return float(sum(predictions != Y))/float(len(Y))
+
+	def pretrain(self, train_X, train_Y, X_val, y_val):
+		errors = []
+		for i, learner in enumerate(self.learners):
+			#train_X, train_Y, test_X, test_Y = train_test_split(data, test_size = 0.2)
+			learner.model.fit(train_X, train_Y)
+			test_error = learner.model.predict(X_val)
+			training_error = learner.model.predict(train_X)
+			errors.append((self.get_error_rate(training_error, train_Y),self.get_error_rate(test_error, y_val)))
+		return errors
 
 	def update(self, X, Y):
 		weight = 1.0
@@ -51,22 +65,23 @@ class OzaBoostClassifier():
 			if prediction == Y:
 				self.correct[i] = self.correct[i]+weight
 				N = float(self.correct[i]+self.incorrect[i])
-				temp = math.exp(N/(2.0*float(self.correct[i])))
+				temp = (N/(2.0*float(self.correct[i])))
 				
 				weight *= temp
 				#print "Weight of example has decreased to: ",weight
 			else:
 				self.incorrect[i] = self.incorrect[i]+weight
 				N = float(self.correct[i]+self.incorrect[i])
-				weight = weight*math.exp(N/(2*self.incorrect[i]))
+				weight = weight*(N/(2*self.incorrect[i]))
 				#print "Weight of example has increased to: ",weight
 
 	def classify(self,X):	
-		label_weights = {}	
+		#label_weights = {}
+		'''	
 		for i, learner in enumerate(self.learners):
 			N = self.correct[i]+self.incorrect[i]+ 1e-16
 			self.error[i] = (self.incorrect[i]+ 1e-16)/N
-			self.coeff[i] = self.error[i]+ 1e-16/(1.0-self.error[i]+ 1e-16)
+			self.coeff[i] = (self.error[i]+ 1e-16)/(1.0-self.error[i]+ 1e-16)
 
 		for i,learner in enumerate(self.learners):
 			weight_learner = log(1/self.coeff[i])
@@ -75,13 +90,20 @@ class OzaBoostClassifier():
 				label_weights[label] += weight_learner
 			else:
 				label_weights[label] = weight_learner
+		'''
+		label_weights = defaultdict(int)
+		for i, learner in enumerate(self.learners):
+			epsilon = (self.correct[i]+1e-16)/(self.incorrect[i]+1e-16)
+			weight = log(epsilon)
+			label = learner.predict(X,self.classes)
+			label_weights[label]+= weight
 
 		return max(label_weights.iterkeys(), key = (lambda key: label_weights[key]))
 			
 class DecisionTree(object):
 
 	def __init__(self, classes):
-		self.model = DecisionTreeClassifier(max_depth = 1, random_state = 1)
+		self.model = DecisionTreeClassifier(max_depth = 2)
 		self.X = None
 		self.y = None
 
@@ -104,10 +126,7 @@ class DecisionTree(object):
 
 	def predict(self, x, classes = None):
 		x = x.reshape(1,-1)
-		try:
-			y = self.model.predict(x)[0]
-		except:
-			y = classes[0]
+		y = self.model.predict(x)[0]
 		return y
 
 		
