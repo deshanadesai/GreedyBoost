@@ -18,8 +18,8 @@ class Test():
 		errors = self.predictor.pretrain(X, y, X_val, y_val)
 	
 		for i, (training_error, testing_error) in enumerate(errors):
-			print "Weak Learner",i," Training Error: ", training_error
-			print "Weak Learner",i," Testing Error: ", testing_error
+			print "Weak Learner",i," Training Accuracy: ", training_error
+			print "Weak Learner",i," Testing Accuracy: ", testing_error
 
 		for t in range(trials):
 			if should_shuffle:

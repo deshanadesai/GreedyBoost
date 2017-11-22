@@ -34,7 +34,13 @@ class OzaBoostClassifier():
 		self.coeff = [0.0 for i in range(self.total_points)]
 
         def get_error_rate(self, predictions, Y):
-                        return float(sum(predictions != Y))/float(len(Y))
+			temp = zip(predictions, Y)
+			correct = 0.0
+			for (p,y) in temp:
+				if p==y:
+					correct+=1
+			
+                        return float(correct)/float(len(Y))
 
 	def pretrain(self, train_X, train_Y, X_val, y_val):
 		errors = []
@@ -103,7 +109,7 @@ class OzaBoostClassifier():
 class DecisionTree(object):
 
 	def __init__(self, classes):
-		self.model = DecisionTreeClassifier(max_depth = 2)
+		self.model = DecisionTreeClassifier(max_depth = 1)
 		self.X = None
 		self.y = None
 

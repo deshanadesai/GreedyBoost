@@ -4,6 +4,8 @@ from sklearn import datasets
 import test
 from sklearn.datasets import load_svmlight_file
 import numpy as np
+from sklearn.model_selection import train_test_split
+
 
 if __name__ == "__main__":
 	seed(0)
@@ -24,10 +26,7 @@ if __name__ == "__main__":
 		elif item==0:
 			y_clean.append(-1)
 
-	print y.shape
-	y = np.array(y_clean)
-	print y.shape	
-	from sklearn.model_selection import train_test_split
+	y = np.array(y_clean)	
 	X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 	model = test.Test(X,y,args.M)
 	train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
