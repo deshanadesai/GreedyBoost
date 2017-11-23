@@ -10,12 +10,18 @@ class Test():
 		self.predictor = ozaboost.OzaBoostClassifier(classes = self.classes, total_points = m)
 		self.correct = 0.0
 		self.t = 0
+		self.baseline = ozaboost.OzaBoostClassifier(classes = self.classes,total_points = 1)
 	
 	def test(self,X,y,X_val, y_val, m, trials=1, should_shuffle=True):
 		results = []
 		data = zip(X,y)
 
 		errors = self.predictor.pretrain(X, y, X_val, y_val)
+		baseline_error = self.baseline.pretrain(X,y,X_val, y_val)
+		
+		(baseline_error_x, baseline_error_y) = baseline_error[0]
+		print "Baseline pre-training - Training Accuracy", baseline_error_x
+		print "Baseline pre-training - Testing Accuracy", baseline_error_y
 	
 		for i, (training_error, testing_error) in enumerate(errors):
 			print "Weak Learner",i," Training Accuracy: ", training_error
@@ -25,30 +31,41 @@ class Test():
 			if should_shuffle:
 				shuffle(data)
 			results.append(self.run_test(data))
-	
+		(booster, baseline) = results[-1]
+
 		#print "Results: ",results	
 		def avg(x):
 			return sum(x)/len(x)
-		return avg(results[-1])
+		return (avg(booster), avg(baseline))
 	
 	def run_test(self, data):
 		performance_booster = []
+		performance_baseline = []
+		baseline_correct = 0.0
 		for (X,Y) in data:	
 			if self.predictor.classify(X) == Y:
 				self.correct += 1
 			self.predictor.update(X,Y)
 			self.t += 1
 			performance_booster.append(self.correct / self.t)
-		return performance_booster
+			if self.baseline.classify(X) == Y:
+				baseline_correct += 1
+			self.baseline.update(X,Y)
+			performance_baseline.append(baseline_correct / self.t)
+		return performance_booster, performance_baseline
 
 	def final_test(self,X,y,m):
 		#print "Performing Test for",len(self.predictor)," weak learners.."
 		correct_test = 0.0
 		num_samples = 0.0
 		data = zip(X,y)
+		correct_baseline = 0.0
 		for (X,y) in data:
 			if self.predictor.classify(X) == y:
 				correct_test +=1
 			num_samples +=1
+			if self.baseline.classify(X) == y:
+				correct_baseline +=1
 		avg = float(correct_test)/float(num_samples)
-		return avg
+		baseline_avg = float(correct_baseline)/float(num_samples)
+		return (avg,baseline_avg)

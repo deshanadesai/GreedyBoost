@@ -29,12 +29,12 @@ if __name__ == "__main__":
 	y = np.array(y_clean)	
 	X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 	model = test.Test(X,y,args.M)
-	train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
+	train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
 	print "Running for "+str(args.M)+" weak learners.."
 	print "Shape of Train Data: ",X_train.shape,y_train.shape
 	print "Shape of Test Data: ",X_test.shape, y_test.shape
-	test_accuracy = model.final_test(X_test,y_test,args.M)
-	print "Accuracy on Training Set:"
-	print train_accuracy
-	print "Test Accuracy"
-	print test_accuracy
+	test_accuracy, baseline_test_accuracy = model.final_test(X_test,y_test,args.M)
+	print "Accuracy on Training Set/ Baseline :"
+	print train_accuracy, baseline_train_accuracy
+	print "Test Accuracy/ Baseline: "
+	print test_accuracy, baseline_test_accuracy

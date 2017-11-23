@@ -1,8 +1,9 @@
-Notes:
+## Notes:
 
 [1] Observed improvement in ozaboost accuracy when the base classifiers are stopped training as soon as the error is slightly better than 0.5
 
 Result:
+```
 Weak Learner 0  Training Accuracy:  0.626373626374
 Weak Learner 0  Testing Accuracy:  0.631578947368
 Weak Learner 1  Training Accuracy:  0.626373626374
@@ -30,9 +31,10 @@ Accuracy on Training Set:
 0.905115076085
 Test Accuracy
 0.956140350877
-
+```
 
 As compared to earlier:
+```
 Weak Learner 0  Training Accuracy:  0.83956043956
 Weak Learner 0  Testing Accuracy:  0.80701754386
 Weak Learner 1  Training Accuracy:  0.681318681319
@@ -60,5 +62,5 @@ Accuracy on Training Set:
 0.887038887248
 Test Accuracy
 0.90350877193
-
+```
 
