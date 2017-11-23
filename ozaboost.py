@@ -20,7 +20,7 @@ import numpy as np
 from numpy.random import poisson, seed
 
 from sklearn.tree import DecisionTreeClassifier
-import naive_bayes_binary
+#import naive_bayes_binary
 
 
 class OzaBoostClassifier():
@@ -50,16 +50,20 @@ class OzaBoostClassifier():
 		for i, learner in enumerate(self.learners):
 			datapoints_x = []
 			datapoints_y = []
-			for j in range(1):
+			while True:
 				index_point = random.randint(0,train_X.shape[0]-1)
 				datapoints_x.append(train_X[index_point])
 				datapoints_y.append(train_Y[index_point])
+				learner.model.fit(datapoints_x,datapoints_y)
+				test_error = self.get_error_rate(learner.model.predict(X_val), y_val)
+				if test_error>0.5:
+					break
 				#train_X, train_Y, test_X, test_Y = train_test_split(data, test_size = 0.2)
 			#learner.model.fit(datapoint_x, train_Y)
-			learner.model.fit(datapoints_x,datapoints_y)
-			test_error = learner.model.predict(X_val)
+			#learner.model.fit(datapoints_x,datapoints_y)
+			#test_error = learner.model.predict(X_val)
 			training_error = learner.model.predict(train_X)
-			errors.append((self.get_error_rate(training_error, train_Y),self.get_error_rate(test_error, y_val)))
+			errors.append((self.get_error_rate(training_error, train_Y),test_error))
 		return errors
 
 	def update(self, X, Y):
@@ -129,10 +133,10 @@ class DecisionTree(object):
 			self.X = x.reshape(1,-1)
 			self.y = y.reshape(1,-1)
 		else:
-			self.X = np.array(x.reshape(1, -1))
-			#self.X = np.vstack((self.X, x))
-			self.y = y.reshape(1, -1)
-			#self.y = np.vstack((self.y, y))
+			#self.X = np.array(x.reshape(1, -1))
+			self.X = np.vstack((self.X, x.reshape(1, -1)))
+			#self.y = y.reshape(1, -1)
+			self.y = np.vstack((self.y, y.reshape(1, -1)))
 
 		#print self.X
 		#print self.y
