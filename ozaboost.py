@@ -20,15 +20,15 @@ import numpy as np
 from numpy.random import poisson, seed
 
 from sklearn.tree import DecisionTreeClassifier
-#import naive_bayes_binary
+from sgdclassifier import sgd_classifier
 
 
 class OzaBoostClassifier():
 	def __init__(self, classes, total_points):
 		self.total_points = total_points
 		self.classes = classes
-		self.learners = [DecisionTree(classes) for i in range(self.total_points)]
-		#self.learners = [naive_bayes_binary.NaiveBayes(classes) for i in range(self.total_points)]
+		#self.learners = [DecisionTree(classes) for i in range(self.total_points)]
+		self.learners = [sgd_classifier(classes) for i in range(self.total_points)]
 		self.correct = [0.0 for i in range(self.total_points)]
 		self.incorrect = [0.0 for i in range(self.total_points)]
 		self.error = [0.0 for i in range(self.total_points)]
@@ -54,7 +54,7 @@ class OzaBoostClassifier():
 				index_point = random.randint(0,train_X.shape[0]-1)
 				datapoints_x.append(train_X[index_point])
 				datapoints_y.append(train_Y[index_point])
-				learner.model.fit(datapoints_x,datapoints_y)
+				learner.fit(datapoints_x, datapoints_y, self.classes)
 				test_error = self.get_error_rate(learner.model.predict(X_val), y_val)
 				if test_error>0.5:
 					break
@@ -126,6 +126,9 @@ class DecisionTree(object):
 		self.model = DecisionTreeClassifier(max_depth = 1)
 		self.X = None
 		self.y = None
+
+	def fit(self, x, y, classes):
+		self.model.fit(x,y)
 
 	def partial_fit(self, x, y):
 		
