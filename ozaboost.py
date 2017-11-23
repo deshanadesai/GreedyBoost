@@ -22,6 +22,7 @@ from numpy.random import poisson, seed
 from sklearn.tree import DecisionTreeClassifier
 import naive_bayes_binary
 
+
 class OzaBoostClassifier():
 	def __init__(self, classes, total_points):
 		self.total_points = total_points
@@ -44,9 +45,18 @@ class OzaBoostClassifier():
 
 	def pretrain(self, train_X, train_Y, X_val, y_val):
 		errors = []
+		import random
+		data = zip(train_X, train_Y)
 		for i, learner in enumerate(self.learners):
-			#train_X, train_Y, test_X, test_Y = train_test_split(data, test_size = 0.2)
-			learner.model.fit(train_X, train_Y)
+			datapoints_x = []
+			datapoints_y = []
+			for j in range(1):
+				index_point = random.randint(0,train_X.shape[0]-1)
+				datapoints_x.append(train_X[index_point])
+				datapoints_y.append(train_Y[index_point])
+				#train_X, train_Y, test_X, test_Y = train_test_split(data, test_size = 0.2)
+			#learner.model.fit(datapoint_x, train_Y)
+			learner.model.fit(datapoints_x,datapoints_y)
 			test_error = learner.model.predict(X_val)
 			training_error = learner.model.predict(train_X)
 			errors.append((self.get_error_rate(training_error, train_Y),self.get_error_rate(test_error, y_val)))
