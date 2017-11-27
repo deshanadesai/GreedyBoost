@@ -111,13 +111,6 @@ class OzaBoostClassifier():
 			else:
 				label_weights[label] = weight_learner
 		print("learner ",i,": ",format(weight_learner,"0.2f"))
-		'''
-		label_weights = defaultdict(int)
-		for i, learner in enumerate(self.learners):
-			epsilon = (self.correct[i]+1e-16)/(self.incorrect[i]+1e-16)
-			weight = log(epsilon)
-			label = learner.predict(X,self.classes)
-			label_weights[label]+= weight'''
 
 		return max(label_weights.iterkeys(), key = (lambda key: label_weights[key]))
 			
