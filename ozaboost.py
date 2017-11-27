@@ -27,8 +27,8 @@ class OzaBoostClassifier():
 	def __init__(self, classes, total_points):
 		self.total_points = total_points
 		self.classes = classes
-		#self.learners = [DecisionTree(classes) for i in range(self.total_points)]
-		self.learners = [sgd_classifier(classes) for i in range(self.total_points)]
+		self.learners = [DecisionTree(classes) for i in range(self.total_points)]
+		#self.learners = [sgd_classifier(classes) for i in range(self.total_points)]
 		self.correct = [0.0 for i in range(self.total_points)]
 		self.incorrect = [0.0 for i in range(self.total_points)]
 		self.error = [0.0 for i in range(self.total_points)]
@@ -96,8 +96,8 @@ class OzaBoostClassifier():
 				#print "Weight of example has increased to: ",weight
 
 	def classify(self,X):	
-		#label_weights = {}
-		'''	
+		label_weights = {}
+		
 		for i, learner in enumerate(self.learners):
 			N = self.correct[i]+self.incorrect[i]+ 1e-16
 			self.error[i] = (self.incorrect[i]+ 1e-16)/N
@@ -110,13 +110,14 @@ class OzaBoostClassifier():
 				label_weights[label] += weight_learner
 			else:
 				label_weights[label] = weight_learner
+		print("learner ",i,": ",format(weight_learner,"0.2f"))
 		'''
 		label_weights = defaultdict(int)
 		for i, learner in enumerate(self.learners):
 			epsilon = (self.correct[i]+1e-16)/(self.incorrect[i]+1e-16)
 			weight = log(epsilon)
 			label = learner.predict(X,self.classes)
-			label_weights[label]+= weight
+			label_weights[label]+= weight'''
 
 		return max(label_weights.iterkeys(), key = (lambda key: label_weights[key]))
 			
@@ -141,15 +142,14 @@ class DecisionTree(object):
 			#self.y = y.reshape(1, -1)
 			self.y = np.vstack((self.y, y.reshape(1, -1)))
 
-		#print self.X
-		#print self.y
-
-
 		self.model.fit(self.X,self.y)
 
 	def predict(self, x, classes = None):
 		x = x.reshape(1,-1)
-		y = self.model.predict(x)[0]
+		try:
+			y = self.model.predict(x)[0]
+		except:
+			return classes[0]
 		return y
 
 		

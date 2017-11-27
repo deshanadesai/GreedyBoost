@@ -1,0 +1,10 @@
+BEGIN
+Baseline Testing Accuracy~~ 0.566666666667
+Testing Accuracy~~ 0.933333333333
+m~~ 10
+Training Accuracy~~ 0.631409026837
+seed~~ 0
+Baseline Training Accuracy~~ 0.559591440583
+trials~~ 1
+END
+
