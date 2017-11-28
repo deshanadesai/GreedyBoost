@@ -64,3 +64,10 @@ Test Accuracy
 0.90350877193
 ```
 
+## To Do:
+
+1. Experiment with Priming - By running it in batch mode with some initial subset of Training data and running in online mode for the rest of Training set. Primed OzaBoost with Decision Trees performs comparably with AdaBoost.
+
+2. Compare the base models' error rates under batch and online boosting.
+
+3. Compare what the Adaboost and Ozaboost models learn and the weights assigned finally. (Check the decision tree rules learnt and weights assigned).
