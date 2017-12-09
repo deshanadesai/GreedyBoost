@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-:mod:`Ozaboost`
+:mod:`Ozaboost_dynamic`
 ==================
 
-.. module:: Ozaboost
+.. module:: Ozaboost_dynamic
    :platform: Mac OS X
    :synopsis:
 
@@ -21,7 +21,7 @@ from numpy.random import poisson, seed
 
 from sklearn.tree import DecisionTreeClassifier
 from sgdclassifier import sgd_classifier
-from sklearn import tree
+
 
 class OzaBoostClassifier():
 	def __init__(self, classes, total_points):
@@ -35,13 +35,47 @@ class OzaBoostClassifier():
 		self.coeff = [0.0 for i in range(self.total_points)]
 
         def get_error_rate(self, predictions, Y):
-			temp = zip(predictions, Y)
-			correct = 0.0
-			for (p,y) in temp:
-				if p==y:
-					correct+=1
-			
-                        return float(correct)/float(len(Y))
+		temp = zip(predictions, Y)
+		correct = 0.0
+		for (p,y) in temp:
+			if p==y:
+				correct+=1
+		return float(correct)/float(len(Y))
+
+
+	def initialize_new_learner(self, X, Y, weight, prev_points):
+		dt = DecisionTree(self.classes)
+		correct = incorrect = 0.0
+		for (x,y) in prev_points:
+			dt.partial_fit(x,y)
+			if dt.predict(x)==y:
+				correct+=1.0
+			else:
+				incorrect += 1.0
+
+		# Check: order matters in online boosting.
+		for i in range(poisson(weight)):
+			dt.partial_fit(X,Y)
+		if dt.predict(X)==Y:
+			correct+= weight
+		else:
+			incorrect += weight
+
+
+		self.learners.append(dt)
+		self.correct.append(correct)
+		self.incorrect.append(incorrect)
+		self.error.append(0.0)
+		self.coeff.append(0.0)	 
+	
+		
+		print ("Is the new classification correct/closer for Y: %d" % (Y))
+		(key, conf, label_weights) = self.classify(X)
+		print ("The classification: ",key,"the weight: ", conf, "& Y: ",Y)
+		print(label_weights)
+		print ("\n\n")
+		
+	
 
 	def pretrain(self, train_X, train_Y, X_val, y_val):
 		errors = []
@@ -72,7 +106,7 @@ class OzaBoostClassifier():
 			#print "Round: ",i
 			k = poisson(weight)
 			#print "Poisson Dist: ",k
-			if k<=0:
+			if not k:
 				continue
 
 			for j in range(k):
@@ -80,7 +114,6 @@ class OzaBoostClassifier():
 			
 			prediction = learner.predict(X)
 			
-			tree.export_graphviz(learner.model, out_file = "learner_"+str(i)+".dot")
 			#print "Initial Weight: ", weight
 
 			if prediction == Y:
@@ -95,6 +128,7 @@ class OzaBoostClassifier():
 				N = float(self.correct[i]+self.incorrect[i])
 				weight = weight*(N/(2*self.incorrect[i]))
 				#print "Weight of example has increased to: ",weight
+		return weight
 
 	def classify(self,X):	
 		label_weights = {}
@@ -111,10 +145,13 @@ class OzaBoostClassifier():
 				label_weights[label] += weight_learner
 			else:
 				label_weights[label] = weight_learner
-		print("learner ",i,": ",format(weight_learner,"0.2f"))
+		#print("learner ",i,": ",format(weight_learner,"0.2f"))
 
-		return max(label_weights.iterkeys(), key = (lambda key: label_weights[key]))
-			
+		key =  max(label_weights.iterkeys(), key = (lambda key: label_weights[key]))
+		
+		
+		return (key,label_weights[key], label_weights) 		
+	
 class DecisionTree(object):
 
 	def __init__(self, classes):
