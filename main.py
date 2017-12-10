@@ -5,12 +5,14 @@ import test
 from sklearn.datasets import load_svmlight_file
 import numpy as np
 from sklearn.model_selection import train_test_split
+from learners import perceptron, decision_trees
 
 if __name__ == "__main__":
 	seed(0)
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('dataset', help='dataset filename')
+	parser.add_argument('weak_learner', help='chosen weak learner')
 	parser.add_argument('M', metavar='# weak_learners', help='number of weak learners', type=int)
 	parser.add_argument('trials', help='number of trials (each with different shuffling of the data); defaults to 1', type=int, default=1, nargs='?')
 	parser.add_argument('--record', action='store_const',const=True, default = False, help = 'export the results in file')
@@ -22,10 +24,14 @@ if __name__ == "__main__":
 	#X,y = X.astype(int), y.astype(int)
 
 	#print (X[0:10],y[0:10])
+	
+	
 	data = datasets.load_breast_cancer()
 	X = data.data
 	y = data.target
-	'''y_clean = []
+	
+	# binary classification:  changing 1/0 to 1/-1
+	y_clean = []
 	for item in y:
 		if item==1:
 			y_clean.append(item)
@@ -34,15 +40,13 @@ if __name__ == "__main__":
 
 	y = np.array(y_clean)
 
-	#df = pd.read_csv(dataset,header=None)
-	raw_data = open(args.dataset, 'r')
-	data = np.loadtxt(raw_data,delimiter=",")
-	output_class = 6
-	X,y = data[:,:output_class], data[:,output_class]
-	#X = X.as_matrix()
-	#y = y.as_matrix()'''
+	weak_learners ={
+	"DecisionTree":decision_trees.DecisionTree,
+	"Perceptron":perceptron.Perceptron}
+
+	
 	X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
-	model = test.Test(X,y,args.M)
+	model = test.Test(weak_learners[args.weak_learner],X,y,args.M)
 	train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
 	print "Running for "+str(args.M)+" weak learners.."
 	print "Shape of Train Data: ",X_train.shape,y_train.shape

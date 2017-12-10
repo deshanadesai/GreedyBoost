@@ -4,13 +4,13 @@ import numpy as np
 import ozaboost
 
 class Test():
-	def __init__(self, X, y, m):
+	def __init__(self, weak_learner, X, y, m):
 		data = zip(X,y)
 		self.classes = np.unique(np.array([y for (x,y) in data]))
-		self.predictor = ozaboost.OzaBoostClassifier(classes = self.classes, total_points = m)
+		self.predictor = ozaboost.OzaBoostClassifier(learners = weak_learner, classes = self.classes, total_points = m)
 		self.correct = 0.0
 		self.t = 0
-		self.baseline = ozaboost.OzaBoostClassifier(classes = self.classes,total_points = 1)
+		self.baseline = ozaboost.OzaBoostClassifier(learners = weak_learner, classes = self.classes,total_points = 1)
 	
 	def test(self,X,y,X_val, y_val, m, trials=1, should_shuffle=True):
 		results = []

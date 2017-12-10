@@ -18,16 +18,15 @@ from math import log
 import math
 import numpy as np
 from numpy.random import poisson, seed
-
-from sklearn.tree import DecisionTreeClassifier
 from sgdclassifier import sgd_classifier
-from sklearn import tree
 
 class OzaBoostClassifier():
-	def __init__(self, classes, total_points):
+	def __init__(self, learners, classes, total_points):
 		self.total_points = total_points
 		self.classes = classes
-		self.learners = [DecisionTree(classes) for i in range(self.total_points)]
+		self.learners = [learners(classes) for i in range(self.total_points)]
+		#self.learners = [DecisionTree(classes) for i in range(self.total_points)]
+		#self.learners = [perceptron.Perceptron(classes) for i in range(self.total_points)]
 		#self.learners = [sgd_classifier(classes) for i in range(self.total_points)]
 		self.correct = [0.0 for i in range(self.total_points)]
 		self.incorrect = [0.0 for i in range(self.total_points)]
@@ -115,35 +114,3 @@ class OzaBoostClassifier():
 
 		return max(label_weights.iterkeys(), key = (lambda key: label_weights[key]))
 			
-class DecisionTree(object):
-
-	def __init__(self, classes):
-		self.model = DecisionTreeClassifier(max_depth = 1)
-		self.X = None
-		self.y = None
-
-	def fit(self, x, y, classes):
-		self.model.fit(x,y)
-
-	def partial_fit(self, x, y):
-		
-		if self.X is None and self.y is None:
-			self.X = x.reshape(1,-1)
-			self.y = y.reshape(1,-1)
-		else:
-			#self.X = np.array(x.reshape(1, -1))
-			self.X = np.vstack((self.X, x.reshape(1, -1)))
-			#self.y = y.reshape(1, -1)
-			self.y = np.vstack((self.y, y.reshape(1, -1)))
-
-		self.model.fit(self.X,self.y)
-
-	def predict(self, x, classes = None):
-		x = x.reshape(1,-1)
-		try:
-			y = self.model.predict(x)[0]
-		except:
-			return classes[0]
-		return y
-
-		
