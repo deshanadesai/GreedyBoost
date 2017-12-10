@@ -53,7 +53,7 @@ class Test():
 				total += v
 			conf = float(conf)/total
 			
-			if (key!=Y and (conf<0.8 or conf==1.0))  or (key==Y and conf<0.5):
+			if clf_no<100 and key!=Y and (conf<0.8 or conf==1.0):#  or (key==Y and conf<0.5):
 				clf_no +=1
 				print ("Initializing new learner: ",clf_no)
 				print (label_weights)

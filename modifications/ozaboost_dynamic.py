@@ -20,7 +20,7 @@ import numpy as np
 from numpy.random import poisson, seed
 
 from sklearn.tree import DecisionTreeClassifier
-from sgdclassifier import sgd_classifier
+#from sgdclassifier import sgd_classifier
 
 
 class OzaBoostClassifier():

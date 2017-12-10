@@ -80,7 +80,7 @@ class OzaBoostClassifier():
 			
 			prediction = learner.predict(X)
 			
-			tree.export_graphviz(learner.model, out_file = "learner_"+str(i)+".dot")
+			#tree.export_graphviz(learner.model, out_file = "learner_"+str(i)+".dot")
 			#print "Initial Weight: ", weight
 
 			if prediction == Y:
@@ -111,7 +111,7 @@ class OzaBoostClassifier():
 				label_weights[label] += weight_learner
 			else:
 				label_weights[label] = weight_learner
-		print("learner ",i,": ",format(weight_learner,"0.2f"))
+		#print("learner ",i,": ",format(weight_learner,"0.2f"))
 
 		return max(label_weights.iterkeys(), key = (lambda key: label_weights[key]))
 			
