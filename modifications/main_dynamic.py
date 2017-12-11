@@ -17,18 +17,16 @@ if __name__ == "__main__":
 	parser.add_argument('--record', action='store_const',const=True, default = False, help = 'export the results in file')
 	args = parser.parse_args()
 
-	data = np.genfromtxt("../data/"+args.dataset,delimiter=",")
-	#data = pd.read_csv("../data/"+dataset)
-	#data = data.values()
-	(rows,cols) = data.shape
-	print (rows,cols)
-	X,y = data[1:,:cols-1],data[1:,cols-1]
-	X,y = X.astype(int), y.astype(int)
+	#data = np.genfromtxt("../data/"+args.dataset,delimiter=",")
+	#(rows,cols) = data.shape
+	#print (rows,cols)
+	#X,y = data[1:,:cols-1],data[1:,cols-1]
+	#X,y = X.astype(int), y.astype(int)
 
-	print (X[0],y[0])
-	#data = datasets.load_breast_cancer()
-	#X = data.data
-	#y = data.target
+	#print (X[0],y[0])
+	data = datasets.load_breast_cancer()
+	X = data.data
+	y = data.target
 	'''y_clean = []
 	for item in y:
 		if item==1:

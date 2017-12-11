@@ -5,7 +5,7 @@ import test
 from sklearn.datasets import load_svmlight_file
 import numpy as np
 from sklearn.model_selection import train_test_split
-from learners import perceptron, decision_trees
+from learners import perceptron, nb_gaussian, nb, decision_trees
 
 if __name__ == "__main__":
 	seed(0)
@@ -41,6 +41,8 @@ if __name__ == "__main__":
 	y = np.array(y_clean)
 
 	weak_learners ={
+	"gaussian_nb":nb_gaussian.NaiveBayes,
+	"nb": nb.NaiveBayes,
 	"DecisionTree":decision_trees.DecisionTree,
 	"Perceptron":perceptron.Perceptron}
 
