@@ -64,7 +64,7 @@ class NaiveBayes(object):
         prob[1] = 1.0 / (1.0 + e ** (prob[0] - prob[1]))
         return 2.0 * prob[1] - 1.0
 
-    def predict(self, x, classes = None):
+    def predict(self, x):
         #x = np.matrix(x)
 	if self.raw_predict(x) > 0.0:
             return 1.0

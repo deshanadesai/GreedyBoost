@@ -105,7 +105,7 @@ class OzaBoostClassifier():
 
 		for i,learner in enumerate(self.learners):
 			weight_learner = log(1/self.coeff[i])
-			label = learner.predict(X, self.classes)
+			label = learner.predict(X)
 			if label in label_weights.keys():
 				label_weights[label] += weight_learner
 			else:

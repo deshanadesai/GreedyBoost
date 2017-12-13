@@ -12,6 +12,7 @@ class DecisionTree(object):
 
 	def __init__(self, classes):
 		self.model = DecisionTreeClassifier(max_depth = 1)
+		self.classes = classes
 		self.X = None
 		self.y = None
 
@@ -31,12 +32,12 @@ class DecisionTree(object):
 
 		self.model.fit(self.X,self.y)
 
-	def predict(self, x, classes = None):
+	def predict(self, x):
 		x = x.reshape(1,-1)
 		try:
 			y = self.model.predict(x)[0]
 		except:
-			return classes[0]
+			return self.classes[0]
 		return y
 
 		

@@ -10,7 +10,7 @@ class Test():
 		self.predictor = ozaboost.OzaBoostClassifier(learners = weak_learner, classes = self.classes, total_points = m)
 		self.correct = 0.0
 		self.t = 0
-		self.baseline = ozaboost.OzaBoostClassifier(learners = weak_learner, classes = self.classes,total_points = 1)
+		self.baseline = weak_learner(self.classes)
 	
 	def test(self,X,y,X_val, y_val, m, trials=1, should_shuffle=True):
 		results = []
@@ -29,12 +29,12 @@ class Test():
 			if should_shuffle:
 				shuffle(data)
 			results.append(self.run_test(data))
-		(booster, baseline) = results[-1]
+		results = zip(*results)
 
 		#print "Results: ",results	
 		def avg(x):
 			return sum(x)/len(x)
-		return (avg(booster), avg(baseline))
+		return (map(avg, zip(*results[0])), map(avg, zip(*results[1])))
 	
 	def run_test(self, data):
 		performance_booster = []
@@ -46,9 +46,9 @@ class Test():
 			self.predictor.update(X,Y)
 			self.t += 1
 			performance_booster.append(self.correct / self.t)
-			if self.baseline.classify(X) == Y:
+			if self.baseline.predict(X) == Y:
 				baseline_correct += 1
-			self.baseline.update(X,Y)
+			self.baseline.partial_fit(X,Y)
 			performance_baseline.append(baseline_correct / self.t)
 		return performance_booster, performance_baseline
 
@@ -62,8 +62,9 @@ class Test():
 			if self.predictor.classify(X) == y:
 				correct_test +=1
 			num_samples +=1
-			if self.baseline.classify(X) == y:
+			if self.baseline.predict(X) == y:
 				correct_baseline +=1
+		print correct_test, correct_baseline
 		avg = float(correct_test)/float(num_samples)
 		baseline_avg = float(correct_baseline)/float(num_samples)
 		return (avg,baseline_avg)

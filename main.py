@@ -5,7 +5,7 @@ import test
 from sklearn.datasets import load_svmlight_file
 import numpy as np
 from sklearn.model_selection import train_test_split
-from learners import perceptron, nb_gaussian, nb, decision_trees
+from learners import nb_gaussian, nb, perceptron, random_stump, decision_trees
 
 if __name__ == "__main__":
 	seed(0)
@@ -43,10 +43,14 @@ if __name__ == "__main__":
 	weak_learners ={
 	"gaussian_nb":nb_gaussian.NaiveBayes,
 	"nb": nb.NaiveBayes,
-	"DecisionTree":decision_trees.DecisionTree,
-	"Perceptron":perceptron.Perceptron}
+	"random_stump":random_stump.RandomStump,
+	"decisiontree":decision_trees.DecisionTree,
+	"perceptron":perceptron.Perceptron}
 
-	
+
+	#model = test.Test(weak_learners[args.weak_learner],X,y,args.M)
+	#print model.test(X,y,[],[],args.M, trials = args.trials)
+		
 	X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 	model = test.Test(weak_learners[args.weak_learner],X,y,args.M)
 	train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
@@ -55,10 +59,11 @@ if __name__ == "__main__":
 	print "Shape of Test Data: ",X_test.shape, y_test.shape
 	test_accuracy, baseline_test_accuracy = model.final_test(X_test,y_test,args.M)
 	print "Accuracy on Training Set/ Baseline :"
-	print train_accuracy, baseline_train_accuracy
+	print train_accuracy[-1], baseline_train_accuracy[-1]
 	print "Test Accuracy/ Baseline: "
 	print test_accuracy, baseline_test_accuracy
-
+	
+	
 	if args.record:
 		results = {
 			'm': args.M,

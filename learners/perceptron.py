@@ -32,7 +32,7 @@ class Perceptron(object):
             return prod / norm
         return prod
 
-    def predict(self, x, classes = None):
+    def predict(self, x):
         #print self.raw_predict(x)
 	if self.raw_predict(x) > 0.0:
             return 1.0
