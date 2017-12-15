@@ -1,13 +1,12 @@
 from random import shuffle
 from collections import defaultdict
 import numpy as np
-import ozaboost
 
 class Test():
-	def __init__(self, weak_learner, X, y, m):
+	def __init__(self,algorithm, weak_learner, X, y, m):
 		data = zip(X,y)
 		self.classes = np.unique(np.array([y for (x,y) in data]))
-		self.predictor = ozaboost.OzaBoostClassifier(learners = weak_learner, classes = self.classes, total_points = m)
+		self.predictor = algorithm(learners = weak_learner, classes = self.classes, total_points = m)
 		self.correct = 0.0
 		self.t = 0
 		self.baseline = weak_learner(self.classes)
@@ -29,9 +28,9 @@ class Test():
 			if should_shuffle:
 				shuffle(data)
 			results.append(self.run_test(data))
-		results = zip(*results)
 
-		#print "Results: ",results	
+		print "Results shape: (",len(results),len(results[0]),")"	
+		results = zip(*results)
 		def avg(x):
 			return sum(x)/len(x)
 		return (map(avg, zip(*results[0])), map(avg, zip(*results[1])))

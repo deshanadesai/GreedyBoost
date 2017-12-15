@@ -4,14 +4,16 @@ from sklearn import datasets
 import test
 from sklearn.datasets import load_svmlight_file
 import numpy as np
+from ensembles import osboost, ocpboost, expboost, ozaboost, smoothboost
 from sklearn.model_selection import train_test_split
-from learners import nb_gaussian, nb, perceptron, random_stump, decision_trees
+from learners import nb_gaussian,sk_nb, nb, perceptron, random_stump, sk_decisiontree, decision_trees
 
 if __name__ == "__main__":
 	seed(0)
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('dataset', help='dataset filename')
+	parser.add_argument('algorithm', help = 'Boosting algorithm')
 	parser.add_argument('weak_learner', help='chosen weak learner')
 	parser.add_argument('M', metavar='# weak_learners', help='number of weak learners', type=int)
 	parser.add_argument('trials', help='number of trials (each with different shuffling of the data); defaults to 1', type=int, default=1, nargs='?')
@@ -40,9 +42,18 @@ if __name__ == "__main__":
 
 	y = np.array(y_clean)
 
+	algorithms = {
+	"smoothboost":smoothboost.SmoothBoost,
+	"osboost":osboost.OSBoost,
+	"ocpboost":ocpboost.OCPBoost,
+	"expboost":expboost.EXPBoost,
+	"ozaboost":ozaboost.OzaBoostClassifier}
+
 	weak_learners ={
+	"sk_nb":sk_nb.NaiveBayes,
 	"gaussian_nb":nb_gaussian.NaiveBayes,
 	"nb": nb.NaiveBayes,
+	"sk_decisiontree": sk_decisiontree.DecisionTree,
 	"random_stump":random_stump.RandomStump,
 	"decisiontree":decision_trees.DecisionTree,
 	"perceptron":perceptron.Perceptron}
@@ -52,7 +63,7 @@ if __name__ == "__main__":
 	#print model.test(X,y,[],[],args.M, trials = args.trials)
 		
 	X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
-	model = test.Test(weak_learners[args.weak_learner],X,y,args.M)
+	model = test.Test(algorithms[args.algorithm], weak_learners[args.weak_learner],X,y,args.M)
 	train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
 	print "Running for "+str(args.M)+" weak learners.."
 	print "Shape of Train Data: ",X_train.shape,y_train.shape

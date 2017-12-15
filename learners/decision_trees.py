@@ -1,43 +1,48 @@
-from collections import defaultdict
-from math import log
-import math
-import numpy as np
-from numpy.random import poisson, seed
+"""
+    An incremental decision tree weak learner that operates in the style
+    of Utgoff (i.e., by updating counts, splitting on best attribute,
+    and propagating examples downward), but in a less efficient manner.
+"""
 
-from sklearn.tree import DecisionTreeClassifier
-from sgdclassifier import sgd_classifier
-from sklearn import tree
+
+import dtree
+
 
 class DecisionTree(object):
 
-	def __init__(self, classes):
-		self.model = DecisionTreeClassifier(max_depth = 1)
-		self.classes = classes
-		self.X = None
-		self.y = None
+    def __init__(self, classes):
+        self.classes = classes
+        self.model = None
 
-	def fit(self, x, y, classes):
-		self.model.fit(x,y)
+    def initialize(self, X):
+        n = len(X)
+	#print "INIT: ",X
+        self.convert_data = lambda x, y: dtree.Data(
+            [list(x) + [y]],
+            order=map(str, range(n)) + ['cls'],
+            types=[dtree.CON] * n + [dtree.DIS],
+            modes=dict(cls=dtree.CLS))
+        self.model = dtree.Tree(dtree.Data(
+            [],
+            order=map(str, range(n)) + ['cls'],
+            types=[dtree.CON] * n + [dtree.DIS],
+            modes=dict(cls=dtree.CLS)), auto_grow=True, splitting_n=1)
+        self.model.set_missing_value_policy(dtree.USE_NEAREST)
 
-	def partial_fit(self, x, y):
-		
-		if self.X is None and self.y is None:
-			self.X = x.reshape(1,-1)
-			self.y = y.reshape(1,-1)
-		else:
-			#self.X = np.array(x.reshape(1, -1))
-			self.X = np.vstack((self.X, x.reshape(1, -1)))
-			#self.y = y.reshape(1, -1)
-			self.y = np.vstack((self.y, y.reshape(1, -1)))
+    def partial_fit(self, X, y, sample_weight=1.0):
+	X = X.reshape(1,-1)
+	y = y.reshape(1,-1)
+        if not self.model:
+            self.initialize(X)
 
-		self.model.fit(self.X,self.y)
+        data = self.convert_data(X, y)
+        for row in data:
+            self.model.train(row)
 
-	def predict(self, x):
-		x = x.reshape(1,-1)
-		try:
-			y = self.model.predict(x)[0]
-		except:
-			return self.classes[0]
-		return y
+    def predict(self, X):
+	X = X.reshape(1,-1)
+        if not self.model:
+            return self.classes[0]
 
-		
+        X = {str(i): X[i] for i in range(len(X))}
+        return self.model.predict(X).best

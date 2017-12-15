@@ -16,7 +16,7 @@ class NaiveBayes(object):
 
     def reset(self, x):
         self.self_w = 2 * 1e-16
-        self.dim = x.shape[1]
+        self.dim = len(x)
         self.neg = 1e-16 * np.ones((2, self.dim))
         self.pos = 1e-16 * np.ones((2, self.dim))
         self.pc = 1e-16 * np.ones(2)
@@ -34,7 +34,7 @@ class NaiveBayes(object):
         self.pc[y] += sample_weight
 
         for i in range(self.dim):
-            if x[(0, i)] < 1e-15:
+            if x[i] < 1e-15:
                 self.neg[y][i] += sample_weight
             else:
                 self.pos[y][i] += sample_weight
@@ -56,7 +56,7 @@ class NaiveBayes(object):
                     return 1.0 - 2 * c
             p = log(p)
             for i in range(self.dim):
-                if x[(0, i)] < 1e-16:
+                if x[i] < 1e-16:
                     p += log(self.neg[c][i] / self.pc[c])
                 else:
                     p += log(self.pos[c][i] / self.pc[c])
