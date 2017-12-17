@@ -16,7 +16,6 @@ class DecisionTree(object):
 
     def initialize(self, X):
         n = len(X)
-	#print "INIT: ",X
         self.convert_data = lambda x, y: dtree.Data(
             [list(x) + [y]],
             order=map(str, range(n)) + ['cls'],
@@ -30,8 +29,6 @@ class DecisionTree(object):
         self.model.set_missing_value_policy(dtree.USE_NEAREST)
 
     def partial_fit(self, X, y, sample_weight=1.0):
-	X = X.reshape(1,-1)
-	y = y.reshape(1,-1)
         if not self.model:
             self.initialize(X)
 
@@ -40,7 +37,6 @@ class DecisionTree(object):
             self.model.train(row)
 
     def predict(self, X):
-	X = X.reshape(1,-1)
         if not self.model:
             return self.classes[0]
 

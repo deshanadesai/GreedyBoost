@@ -11,13 +11,19 @@ class RandomStump(object):
         self.feature = feature
 
     def partial_fit(self, example, label, sample_weight=1.0):
+        example = example.reshape(1,-1)
         if self.feature is None:
             self.feature = randint(0, example.shape[1] - 1)
-
-        self.label_sums[label] += sample_weight * example[(0, self.feature)]
-        self.label_counts[label] += sample_weight
+        if label in self.label_sums.keys():
+            self.label_sums[label] += sample_weight * example[(0, self.feature)]
+            self.label_counts[label] += sample_weight
+        else:
+            self.label_sums[label] = sample_weight * example[(0, self.feature)]
+            self.label_counts[label] = sample_weight 
+            
 
     def predict(self, x):
+        x = x.reshape(1,-1)
         if not self.label_counts:
             return self.labels[0]
 

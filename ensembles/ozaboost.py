@@ -13,6 +13,7 @@
 Created on 2017-11-19, 5:00
 
 """
+from random import shuffle
 from collections import defaultdict
 from math import log
 import math
@@ -39,8 +40,7 @@ class OzaBoostClassifier():
 			for (p,y) in temp:
 				if p==y:
 					correct+=1
-			
-                        return float(correct)/float(len(Y))
+			return float(correct)/float(len(Y))
 
 	def pretrain(self, train_X, train_Y, X_val, y_val):
 		errors = []
@@ -67,6 +67,7 @@ class OzaBoostClassifier():
 
 	def update(self, X, Y):
 		weight = 1.0
+		#shuffle(self.learners)
 		for i, learner in enumerate(self.learners):
 			#print "Round: ",i
 			k = poisson(weight)

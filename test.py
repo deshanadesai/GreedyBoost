@@ -14,13 +14,14 @@ class Test():
 	def test(self,X,y,X_val, y_val, m, trials=1, should_shuffle=True):
 		results = []
 		data = zip(X,y)
-		'''errors = self.predictor.pretrain(X, y, X_val, y_val)
-		baseline_error = self.baseline.pretrain(X,y,X_val, y_val)
+
+		#errors = self.predictor.pretrain(X, y, X_val, y_val)
+		#baseline_error = self.baseline.pretrain(X,y,X_val, y_val)
 		
-		(baseline_error_x, baseline_error_y) = baseline_error[0]
-		print "Baseline pre-training - Training Accuracy", baseline_error_x
-		print "Baseline pre-training - Testing Accuracy", baseline_error_y
-        
+		#(baseline_error_x, baseline_error_y) = baseline_error[0]
+		#print "Baseline pre-training - Training Accuracy", baseline_error_x
+		#print "Baseline pre-training - Testing Accuracy", baseline_error_y
+		'''        
 		for i, (training_error, testing_error) in enumerate(errors):
 			print "Weak Learner",i," Training Accuracy: ", training_error
 			print "Weak Learner",i," Testing Accuracy: ", testing_error'''
@@ -29,7 +30,7 @@ class Test():
 				shuffle(data)
 			results.append(self.run_test(data))
 
-		print "Results shape: (",len(results),len(results[0]),")"	
+		#print "Results shape: (",len(results),len(results[0]),")"	
 		results = zip(*results)
 		def avg(x):
 			return sum(x)/len(x)
@@ -63,7 +64,7 @@ class Test():
 			num_samples +=1
 			if self.baseline.predict(X) == y:
 				correct_baseline +=1
-		print correct_test, correct_baseline
+		#print correct_test, correct_baseline
 		avg = float(correct_test)/float(num_samples)
 		baseline_avg = float(correct_baseline)/float(num_samples)
 		return (avg,baseline_avg)

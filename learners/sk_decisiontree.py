@@ -15,22 +15,28 @@ class DecisionTree(object):
 		self.classes = classes
 		self.X = None
 		self.y = None
+		self.sample_weight = []
 
-	def fit(self, x, y, classes):
-		self.model.fit(x,y)
+	'''
+	def fit(self, x, y, sample_weight):
+		self.model.fit(x,y, sample_weight = self.sample_weight/sum(self.sample_weight) )
+	'''
 
-	def partial_fit(self, x, y):
+	def partial_fit(self, X, y, sample_weight =1.0):
 		
 		if self.X is None and self.y is None:
-			self.X = x.reshape(1,-1)
+			self.X = X.reshape(1,-1)
+			self.sample_weight.append(sample_weight)
 			self.y = y.reshape(1,-1)
 		else:
 			#self.X = np.array(x.reshape(1, -1))
-			self.X = np.vstack((self.X, x.reshape(1, -1)))
+			self.X = np.vstack((self.X, X.reshape(1, -1)))
 			#self.y = y.reshape(1, -1)
+			self.sample_weight.append(sample_weight)
 			self.y = np.vstack((self.y, y.reshape(1, -1)))
 
-		self.model.fit(self.X,self.y)
+		wts = [x/sum(self.sample_weight) for x in self.sample_weight]
+		self.model.fit(self.X,self.y, sample_weight= wts)
 
 	def predict(self, x):
 		x = x.reshape(1,-1)

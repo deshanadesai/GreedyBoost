@@ -5,19 +5,22 @@ import test
 from sklearn.datasets import load_svmlight_file
 import numpy as np
 import data_loader
+import matplotlib 
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from ensembles import osboost, ocpboost, expboost, ozaboost, smoothboost
 from sklearn.model_selection import train_test_split
-from learners import nb_gaussian,sk_nb, nb, perceptron, random_stump, sk_decisiontree, decision_trees, sk_perceptron
+from learners import nb_gaussian,sk_nb, nb, perceptron, sk_perceptron, random_stump, sk_decisiontree, decision_trees
+import math
 from tqdm import *
 
 if __name__ == "__main__":
     seed(0)
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument('dataset', help='dataset filename')
-    parser.add_argument('algorithm', help = 'Boosting algorithm')
     parser.add_argument('weak_learner', help='chosen weak learner')
-    parser.add_argument('M', metavar='# weak_learners', help='number of weak learners', type=int)
     parser.add_argument('trials', help='number of trials (each with different shuffling of the data); defaults to 1', type=int, default=1, nargs='?')
     parser.add_argument('--record', action='store_const',const=True, default = False, help = 'export the results in file')
     args = parser.parse_args()
@@ -43,40 +46,41 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 
-    results = []
-    T = 10
-    print "Shape of training data: ", X_train.shape
-    for t in range(T):
-        model = test.Test(algorithms[args.algorithm], weak_learners[args.weak_learner],X_train,y_train,args.M)
-        train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
-        test_accuracy, baseline_test_accuracy = model.final_test(X_test,y_test,args.M)
-        results.append(test_accuracy)
-    f = open('results_datasets.txt','a')
-    f.write("Dataset: "+str(args.dataset)+"\n")
-    f.write("Algorithm: "+str(args.algorithm)+"\n")
-    f.write("Weak learner: "+str(args.weak_learner)+"\n")
-    f.write("baseline acc: "+str(baseline_test_accuracy)+"\n")
-    f.write(str(results))
-    f.write("Final Accuracy: "+str(float(sum(results))/T)+"\n\n\n")
 
-    '''
+    T = 20
+    fig, ax = plt.subplots( nrows=1, ncols=1 )  
+    number_weak_learners = [1,50,100,150,200,250,300,350,400,450,500]#,750,1000]
+    ax.set_xticks(number_weak_learners)
 
-    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
-    model = test.Test(algorithms[args.algorithm], weak_learners[args.weak_learner],X,y,args.M)
-    train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
-    print "Running for "+str(args.M)+" weak learners.."
-    print "Shape of Train Data: ",X_train.shape,y_train.shape
-    print "Shape of Test Data: ",X_test.shape, y_test.shape
-    test_accuracy, baseline_test_accuracy = model.final_test(X_test,y_test,args.M)
-    print "Accuracy on Training Set/ Baseline :"
-    print train_accuracy[-1], baseline_train_accuracy[-1]
-    print "Test Accuracy/ Baseline: "
-    print test_accuracy, baseline_test_accuracy
-    '''
+
+    for (name, ensembler) in tqdm(algorithms.iteritems()):
+        print "Ensembler: ",name
+        num_samples = []
+        results = []
+        for i in number_weak_learners:
+            print "Number of weak learners: ",i
+            acc = 0.0
+            for t in range(T):
+                model = test.Test(ensembler, weak_learners[args.weak_learner],X_train,y_train,i)
+                train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, i,trials=args.trials)
+                test_accuracy, baseline_test_accuracy = model.final_test(X_test,y_test,i)
+                acc += test_accuracy
+            results.append(acc/float(T))
+        print "Result: ",results
+        ax.plot(number_weak_learners, results, marker = 'o', label = name)
+        fig.savefig('Ensemblers_num_weak_learners.png')
+
+
+    plt.legend(loc="lower right")
+    plt.xlabel('Number of Samples', fontsize = 12)
+    plt.ylabel('Accuracy', fontsize = 12)
+    plt.title('Ensemblers accuracy vs Number of Learners', fontsize = 16)
+    fig.savefig('Ensemblers_num_learners.png')
+    plt.close(fig)
+
 
     if args.record:
         results = {
-            'm': args.M,
             'Training Accuracy':train_accuracy,
             'Baseline Training Accuracy': baseline_train_accuracy,
             'Testing Accuracy': test_accuracy,
@@ -84,7 +88,7 @@ if __name__ == "__main__":
             'trials': args.trials,
             'seed': 0
         }
-        filename = open('adaboost_results_'+str(args.dataset)+'_'+str(args.M)+'.txt','a')
+        filename = open('adaboost_results_'+str(args.dataset)+'.txt','a')
         filename.write("BEGIN\n")
         for k,v in results.items():
             filename.write(str(k)+"~~ "+str(v)+"\n")
