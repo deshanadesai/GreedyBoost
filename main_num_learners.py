@@ -8,7 +8,7 @@ import data_loader
 import matplotlib 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from ensembles import osboost, ocpboost, expboost, ozaboost, smoothboost
+from ensembles import osboost, ocpboost, expboost, ozaboost, smoothboost, ogboost
 from sklearn.model_selection import train_test_split
 from learners import nb_gaussian,sk_nb, nb, perceptron, sk_perceptron, random_stump, sk_decisiontree, decision_trees
 import math
@@ -28,10 +28,11 @@ if __name__ == "__main__":
     X,y = data_loader.load_data(args.dataset)
 
     algorithms = {
-    "smoothboost":smoothboost.SmoothBoost,
+    "ogboost":ogboost.OGBoost,
     "osboost":osboost.OSBoost,
     "ocpboost":ocpboost.OCPBoost,
     "expboost":expboost.EXPBoost,
+    "smoothboost":smoothboost.SmoothBoost,
     "ozaboost":ozaboost.OzaBoostClassifier}
 
     weak_learners ={
@@ -47,14 +48,16 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 
 
-    T = 20
+    T = 10
+    
     fig, ax = plt.subplots( nrows=1, ncols=1 )  
-    number_weak_learners = [1,50,100,150,200,250,300,350,400,450,500]#,750,1000]
-    ax.set_xticks(number_weak_learners)
+    number_weak_learners = [1,50,100,150,200,250,300,350,400,450,500,550,600,650,700]#,750,800,850,900,950,1000]#,750,1000]
+    #ax.set_xticks(number_weak_learners)
 
 
-    for (name, ensembler) in tqdm(algorithms.iteritems()):
+    for (name, ensembler) in algorithms.iteritems():
         print "Ensembler: ",name
+        
         num_samples = []
         results = []
         for i in number_weak_learners:
@@ -66,15 +69,24 @@ if __name__ == "__main__":
                 test_accuracy, baseline_test_accuracy = model.final_test(X_test,y_test,i)
                 acc += test_accuracy
             results.append(acc/float(T))
-        print "Result: ",results
-        ax.plot(number_weak_learners, results, marker = 'o', label = name)
+        print results
+        
+        ax.plot(number_weak_learners, results, marker = 'o', linewidth = 0.8, label = name)
+                
         fig.savefig('Ensemblers_num_weak_learners.png')
 
+    plt.xlabel('Number of Weak Learners')
+    plt.ylabel('Accuracy')
+    # Shrink current axis's height by 10% on the bottom
 
-    plt.legend(loc="lower right")
-    plt.xlabel('Number of Samples', fontsize = 12)
-    plt.ylabel('Accuracy', fontsize = 12)
-    plt.title('Ensemblers accuracy vs Number of Learners', fontsize = 16)
+    # Shrink current axis's height by 10% on the bottom
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                     box.width, box.height * 0.9])
+
+    # Put a legend below current axis
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+              fancybox=True, shadow=True, ncol=4)
     fig.savefig('Ensemblers_num_learners.png')
     plt.close(fig)
 

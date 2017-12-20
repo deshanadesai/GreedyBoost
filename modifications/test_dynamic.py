@@ -32,16 +32,21 @@ class Test():
 		baseline_correct = 0.0
 		prev_points = []
 		clf_no = 0
-		for (X,Y) in data:	
+		incorrect_list = []
+		incorrect = 0.0
+		for (X,Y) in data:
 			if self.predictor.classify(X)[0] == Y:
 				self.correct += 1
+			else:
+				incorrect +=1
+			incorrect_list.append(incorrect)
 			weight = self.predictor.update(X,Y)
 
 			(key, conf, label_weights) = self.predictor.classify(X)
 			total = 0.0
 			for (k,v) in label_weights.iteritems():
 				total += v
-			conf = float(conf)/total
+			conf = float(conf)/(total+1e-16)
 			
 			if clf_no<100 and key!=Y and (conf<0.8 or conf==1.0):#  or (key==Y and conf<0.5):
 				clf_no +=1
@@ -57,6 +62,13 @@ class Test():
 			self.baseline.partial_fit(X,Y)
 			performance_baseline.append(baseline_correct / self.t)
 			prev_points.append((X,Y))
+		print clf_no
+		'''
+		f = open('greedyboost.txt','w')
+		f.write(str(incorrect_list))
+		f.close()
+		print incorrect_list
+		'''
 		return performance_booster, performance_baseline
 
 	def final_test(self,X,y,m):

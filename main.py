@@ -5,7 +5,7 @@ import test
 from sklearn.datasets import load_svmlight_file
 import numpy as np
 import data_loader
-from ensembles import osboost, ocpboost, expboost, ozaboost, smoothboost
+from ensembles import osboost, ocpboost, expboost, ozaboost, smoothboost, ogboost
 from sklearn.model_selection import train_test_split
 from learners import nb_gaussian,sk_nb, nb, perceptron, random_stump, sk_decisiontree, decision_trees, sk_perceptron
 from tqdm import *
@@ -26,6 +26,7 @@ if __name__ == "__main__":
 
     algorithms = {
     "smoothboost":smoothboost.SmoothBoost,
+    "ogboost":ogboost.OGBoost,
     "osboost":osboost.OSBoost,
     "ocpboost":ocpboost.OCPBoost,
     "expboost":expboost.EXPBoost,
@@ -44,13 +45,14 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 
     results = []
-    T = 10
-    print "Shape of training data: ", X_train.shape
+    T = 1
+    print "Running: ",args.algorithm
     for t in range(T):
         model = test.Test(algorithms[args.algorithm], weak_learners[args.weak_learner],X_train,y_train,args.M)
         train_accuracy, baseline_train_accuracy = model.test(X_train,y_train,X_test, y_test, args.M,trials=args.trials)
         test_accuracy, baseline_test_accuracy = model.final_test(X_test,y_test,args.M)
         results.append(test_accuracy)
+        print results
     f = open('results_datasets.txt','a')
     f.write("Dataset: "+str(args.dataset)+"\n")
     f.write("Algorithm: "+str(args.algorithm)+"\n")

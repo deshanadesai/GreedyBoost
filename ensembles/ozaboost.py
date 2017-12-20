@@ -19,7 +19,6 @@ from math import log
 import math
 import numpy as np
 from numpy.random import poisson, seed
-from sgdclassifier import sgd_classifier
 
 class OzaBoostClassifier():
 	def __init__(self, learners, classes, total_points):

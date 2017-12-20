@@ -40,9 +40,14 @@ class Test():
 		performance_booster = []
 		performance_baseline = []
 		baseline_correct = 0.0
+		incorrect_list = []
+		incorrect = 0.0
 		for (X,Y) in data:	
 			if self.predictor.classify(X) == Y:
 				self.correct += 1
+			else:
+				incorrect +=1
+			incorrect_list.append(incorrect)
 			self.predictor.update(X,Y)
 			self.t += 1
 			performance_booster.append(self.correct / self.t)
@@ -50,6 +55,12 @@ class Test():
 				baseline_correct += 1
 			self.baseline.partial_fit(X,Y)
 			performance_baseline.append(baseline_correct / self.t)
+		'''
+		f = open('ozaboost.txt','w')
+		f.write(str(incorrect_list))
+		f.close()
+		print (incorrect_list)
+		'''
 		return performance_booster, performance_baseline
 
 	def final_test(self,X,y,m):

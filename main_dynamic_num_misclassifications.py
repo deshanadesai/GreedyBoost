@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from ensembles import osboost, ocpboost, expboost, ozaboost, smoothboost
-from modifications import ozaboost_dynamic, test_dynamic, test_dynamic_memory
+from modifications import ozaboost_dynamic, test_dynamic
 from sklearn.model_selection import train_test_split
 from learners import nb_gaussian,sk_nb, nb, perceptron, sk_perceptron, random_stump, sk_decisiontree, decision_trees
 import math
@@ -30,10 +30,8 @@ if __name__ == "__main__":
     X,y = data_loader.load_data(args.dataset)
 
     algorithms = {
-    "P = ALL":ozaboost_dynamic.OzaBoostClassifier,
-    "P = 50":ozaboost_dynamic.OzaBoostClassifier,
-    "P = 100":ozaboost_dynamic.OzaBoostClassifier,
-    "P = 200":ozaboost_dynamic.OzaBoostClassifier
+    "Greedy ozaboost":ozaboost_dynamic.OzaBoostClassifier,
+    "Ozaboost":ozaboost.OzaBoostClassifier,
     }
 
     weak_learners ={
@@ -48,55 +46,42 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.20, random_state = 1)
 
+
     T = 20
+    
     fig, ax = plt.subplots( nrows=1, ncols=1 )  
     
-
+    tr = [1,2,3,4,5,6,7,8,9,10]
 
     for (name, ensembler) in tqdm(algorithms.iteritems()):
         print "Ensembler: ",name
-        num_samples = []
-        results = []
-
-        if name=="P = 50":
-            l = 50
-        elif name=="P = 100":
-            l = 100
-        elif name =="P = 200":
-            l = 200
-            
-        percent = []
-        for i in range(1,21):
-            num = int(math.floor((i/20.0)*X_train.shape[0]))
-            percent.append(i*100/20.0)
-            print "Number of samples: ",num, X_train.shape
-            num_samples.append(num)
+        results = []           
+        for i in range(1,11):
             acc = 0.0
             for t in range(T):
-                X_cut = X_train[0:num]
-                y_cut = y_train[0:num]
-                if name!="P = All":
-                    model = test_dynamic_memory.Test(ensembler, weak_learners[args.weak_learner], X_cut, y_cut, 1, l)
-                    train_accuracy, baseline_train_accuracy = model.test(weak_learners[args.weak_learner], X_cut, y_cut, X_test, y_test, args.M, trials=args.trials)
-                    test_accuracy, baseline_test_accuracy = model.final_test(X_test, y_test, args.M)
+                if name=="Greedy ozaboost":
+                    model = test_dynamic.Test(ensembler, weak_learners[args.weak_learner], X_train, y_train, 1)
+                    train_accuracy, baseline_train_accuracy = model.test(weak_learners[args.weak_learner], X_train, y_train, X_test, y_test, 1, trials=i)
+                    test_accuracy, baseline_test_accuracy = model.final_test(X_test, y_test, 1)
                     
                 else:
-                    model = test_dynamic.Test(ensembler, weak_learners[args.weak_learner], X_cut, y_cut, args.M)
-                    train_accuracy, baseline_train_accuracy = model.test(weak_learners[args.weak_learner], X_cut, y_cut, X_test, y_test, args.M, trials=args.trials)
+                    model = test.Test(ensembler, weak_learners[args.weak_learner], X_train, y_train, args.M)
+                    train_accuracy, baseline_train_accuracy = model.test(X_train, y_train, X_test, y_test, args.M, trials=i)
                     test_accuracy, baseline_test_accuracy = model.final_test(X_test, y_test, args.M)
                                        
                 acc += test_accuracy
             results.append(acc/float(T))
         print "Result: ",results
-        #ax.set_xticks(num_samples)
-        ax.plot(percent, results, label = name)
-        fig.savefig('Greedyboost_prev50_num_samples.png')
+        ax.set_xticks(tr)
+        ax.plot(tr, results, label = name)
+        fig.savefig('Greedyboost_trials.png')
 
 
     plt.legend(loc="lower right")
-    plt.xlabel('Percentage of Data', fontsize = 12)
+    plt.xlabel('Number of Samples', fontsize = 12)
     plt.ylabel('Accuracy', fontsize = 12)
-    fig.savefig('Ensemblers_prev50_cancer_dt_num_samples.png')
+    plt.title('Ensemblers accuracy vs Number of samples', fontsize = 16)
+    fig.savefig('Ensemblers_trials.png')
     plt.close(fig)
 
 

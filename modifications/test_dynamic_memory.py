@@ -42,7 +42,7 @@ class Test():
             total = 0.0
             for (k,v) in label_weights.iteritems():
                 total += v
-            conf = float(conf)/total
+            conf = float(conf)/(total+1e-16)
 
             if clf_no<100 and key!=Y and (conf<0.8 or conf==1.0):#  or (key==Y and conf<0.5):
                 clf_no +=1

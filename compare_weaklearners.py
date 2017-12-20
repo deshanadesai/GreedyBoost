@@ -26,9 +26,9 @@ class OnlineLearners():
         args = parser.parse_args()
 
         weak_learners ={
-        "sk_perceptron": sk_perceptron.PerceptronClassifier,
-        "sk_nb":sk_nb.NaiveBayes,
-        "sk_decisiontree": sk_decisiontree.DecisionTree}
+        "Perceptron":perceptron.Perceptron,
+        "Naive Bayes":sk_nb.NaiveBayes,
+        "Decision Stumps":random_stump.RandomStump}
 
         heldout = [0.95, 0.90, 0.75, 0.50, 0.01]
         rounds = 10
