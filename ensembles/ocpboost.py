@@ -1,6 +1,7 @@
 """
     An online boosting algorithm which mixes SmoothBoost with
-    Online Convex Programming from Chen '12.
+    Online Convex Programming from Chen '12. 
+    Reference:https://github.com/crm416/online_boosting/blob/master/ensemblers/ocpboost.py
 """
 
 from math import sqrt
